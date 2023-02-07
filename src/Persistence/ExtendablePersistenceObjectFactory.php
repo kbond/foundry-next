@@ -12,7 +12,7 @@
 namespace Zenstruck\Foundry\Persistence;
 
 use Zenstruck\Foundry\Factory;
-use Zenstruck\Foundry\Object\CustomObjectFactory;
+use Zenstruck\Foundry\Object\ExtendableObjectFactory;
 
 /**
  * @author Kevin Bond <kevinbond@gmail.com>
@@ -22,10 +22,10 @@ use Zenstruck\Foundry\Object\CustomObjectFactory;
  * @template T of object
  * @phpstan-import-type Parameters from Factory
  */
-trait CustomPersistenceObjectFactory
+trait ExtendablePersistenceObjectFactory
 {
-    /** @use CustomObjectFactory<T> */
-    use CustomObjectFactory;
+    /** @use ExtendableObjectFactory<T> */
+    use ExtendableObjectFactory;
 
     /**
      * @param Parameters $attributes

@@ -9,16 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Zenstruck\Foundry\Object;
+namespace Zenstruck\Foundry\Mongo;
+
+use Zenstruck\Foundry\Persistence\ExtendablePersistenceObjectFactory;
 
 /**
  * @author Kevin Bond <kevinbond@gmail.com>
  *
  * @template T of object
- * @extends ObjectFactory<T>
+ * @extends DocumentFactory<T>
  */
-abstract class CustomObjectFactory extends ObjectFactory
+abstract class CustomDocumentFactory extends DocumentFactory
 {
-    /** @use ExtendableObjectFactory<T> */
-    use ExtendableObjectFactory;
+    /** @use ExtendablePersistenceObjectFactory<T> */
+    use ExtendablePersistenceObjectFactory;
 }

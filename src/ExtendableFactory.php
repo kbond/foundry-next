@@ -21,7 +21,7 @@ namespace Zenstruck\Foundry;
  * @phpstan-import-type Parameters from Factory
  * @phpstan-import-type Attributes from Factory
  */
-trait CustomFactory
+trait ExtendableFactory
 {
     /**
      * @param Attributes $attributes

@@ -9,15 +9,29 @@
  * file that was distributed with this source code.
  */
 
-namespace Zenstruck\Foundry\Array;
+namespace Zenstruck\Foundry\Object;
 
 use Zenstruck\Foundry\ExtendableFactory;
 
 /**
  * @author Kevin Bond <kevinbond@gmail.com>
+ *
+ * @internal
+ *
+ * @template T of object
  */
-abstract class CustomArrayFactory extends ArrayFactory
+trait ExtendableObjectFactory
 {
-    /** @use ExtendableFactory<array> */
+    /** @use ExtendableFactory<T> */
     use ExtendableFactory;
+
+    public function __construct()
+    {
+        parent::__construct(static::class());
+    }
+
+    /**
+     * @return class-string<T>
+     */
+    abstract public function class(): string;
 }

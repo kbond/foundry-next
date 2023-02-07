@@ -9,16 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Zenstruck\Foundry\Object;
+namespace Zenstruck\Foundry\ORM;
+
+use Zenstruck\Foundry\Persistence\ExtendablePersistenceObjectFactory;
 
 /**
  * @author Kevin Bond <kevinbond@gmail.com>
  *
  * @template T of object
- * @extends ObjectFactory<T>
+ * @extends EntityFactory<T>
  */
-abstract class ConcreteObjectFactory extends ObjectFactory
+abstract class CustomEntityFactory extends EntityFactory
 {
-    /** @use CustomObjectFactory<T> */
-    use CustomObjectFactory;
+    /** @use ExtendablePersistenceObjectFactory<T> */
+    use ExtendablePersistenceObjectFactory;
 }
