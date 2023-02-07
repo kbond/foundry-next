@@ -16,22 +16,22 @@ use Zenstruck\Foundry\CustomFactory;
 /**
  * @author Kevin Bond <kevinbond@gmail.com>
  *
- * @internal
- *
  * @template T of object
+ * @template F of ObjectFactory
+ * @extends CustomFactory<T,F>
  */
-trait CustomObjectFactory
+abstract class CustomObjectFactory extends CustomFactory
 {
-    /** @use CustomFactory<T> */
-    use CustomFactory;
-
-    public function __construct()
-    {
-        parent::__construct(static::class());
-    }
-
     /**
      * @return class-string<T>
      */
-    abstract public function class(): string;
+    abstract public static function class(): string;
+
+    /**
+     * @internal
+     */
+    protected static function createFactory(): ObjectFactory
+    {
+        return new ObjectFactory([static::class, 'class']());
+    }
 }

@@ -15,9 +15,16 @@ use Zenstruck\Foundry\CustomFactory;
 
 /**
  * @author Kevin Bond <kevinbond@gmail.com>
+ *
+ * @extends CustomFactory<array,ArrayFactory>
  */
-abstract class CustomArrayFactory extends ArrayFactory
+abstract class CustomArrayFactory extends CustomFactory
 {
-    /** @use CustomFactory<array> */
-    use CustomFactory;
+    /**
+     * @internal
+     */
+    final protected static function createFactory(): ArrayFactory
+    {
+        return new ArrayFactory();
+    }
 }

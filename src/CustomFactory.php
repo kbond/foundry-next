@@ -14,15 +14,35 @@ namespace Zenstruck\Foundry;
 /**
  * @author Kevin Bond <kevinbond@gmail.com>
  *
- * @internal
- *
  * @template T
+ * @template F of Factory
+ * @mixin F<T>
  *
  * @phpstan-import-type Parameters from Factory
  * @phpstan-import-type Attributes from Factory
  */
-trait CustomFactory
+abstract class CustomFactory
 {
+    /** @var F */
+    private Factory $factory;
+
+    protected function __construct()
+    {
+        $this->factory = static::createFactory();
+    }
+
+    final public function __call(string $name, array $arguments): static
+    {
+        if (!\is_callable($this->factory, $name)) {
+            throw new \BadMethodCallException();
+        }
+
+        $clone = clone $this;
+        $clone->factory = $this->factory->{$name}(...$arguments);
+
+        return $clone;
+    }
+
     /**
      * @param Attributes $attributes
      */
@@ -55,4 +75,11 @@ trait CustomFactory
      * @return Parameters
      */
     abstract protected function getDefaults(): array;
+
+    /**
+     * @internal
+     *
+     * @return F
+     */
+    abstract protected static function createFactory(): Factory;
 }

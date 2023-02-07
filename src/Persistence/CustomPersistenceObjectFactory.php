@@ -17,16 +17,13 @@ use Zenstruck\Foundry\Object\CustomObjectFactory;
 /**
  * @author Kevin Bond <kevinbond@gmail.com>
  *
- * @internal
- *
  * @template T of object
+ * @template F of PersistenceObjectFactory
+ * @extends CustomObjectFactory<T,F>
  * @phpstan-import-type Parameters from Factory
  */
-trait CustomPersistenceObjectFactory
+abstract class CustomPersistenceObjectFactory extends CustomObjectFactory
 {
-    /** @use CustomObjectFactory<T> */
-    use CustomObjectFactory;
-
     /**
      * @param Parameters $attributes
      *
