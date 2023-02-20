@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the zenstruck/{name} package.
+ * This file is part of the zenstruck/foundry package.
  *
  * (c) Kevin Bond <kevinbond@gmail.com>
  *
@@ -16,4 +16,5 @@ namespace Zenstruck\Foundry\Persistence;
  */
 interface Proxy
 {
+    public function _save(): static;
 }

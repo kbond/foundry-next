@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the zenstruck/{name} package.
+ * This file is part of the zenstruck/foundry package.
  *
  * (c) Kevin Bond <kevinbond@gmail.com>
  *
@@ -22,11 +22,25 @@ namespace Zenstruck\Foundry;
  */
 abstract class Factory
 {
+    /** @var array<callable():array<string,mixed>> */
+    private array $attributes = [];
+
     /**
      * @param Attributes $attributes
      */
-    public function __construct(array|callable $attributes = [])
+    final public static function new(array|callable $attributes = []): static
     {
+        return FactoryManager::create(static::class)->withAttributes($attributes);
+    }
+
+    /**
+     * @param Attributes $attributes
+     *
+     * @return T
+     */
+    final public static function createOne(array|callable $attributes = []): mixed
+    {
+        return static::new($attributes)->create();
     }
 
     /**
@@ -39,14 +53,48 @@ abstract class Factory
     /**
      * @param Attributes $attributes
      */
-    final public function withAttributes(array|callable $attributes = []): static
+    final public function withAttributes(array|callable $attributes): static
     {
+        if (!$attributes) {
+            return $this;
+        }
+
+        $clone = clone $this;
+        $clone->attributes[] = \is_callable($attributes) ? $attributes : static fn() => $attributes;
+
+        return $clone;
+    }
+
+    /**
+     * @param Attributes $attributes
+     *
+     * @return Parameters
+     */
+    protected function normalizedAttributes(array|callable $attributes): array
+    {
+        $attributes = $attributes ? \array_merge($this->attributes, \is_callable($attributes) ? $attributes() : $attributes) : $this->attributes;
+
+        return [
+            $this->getDefaults(),
+            ...\array_map(static fn(callable $attr): array => $attr(), $attributes),
+        ];
+    }
+
+    protected function initialize(): static
+    {
+        return $this;
+    }
+
+    /**
+     * @param Attributes $attributes
+     */
+    final protected function addState(array|callable $attributes = []): static
+    {
+        return $this->withAttributes($attributes);
     }
 
     /**
      * @return Parameters
      */
-    protected function normalizeAttributes(): array
-    {
-    }
+    abstract protected function getDefaults(): array;
 }

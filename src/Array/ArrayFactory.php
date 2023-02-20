@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the zenstruck/{name} package.
+ * This file is part of the zenstruck/foundry package.
  *
  * (c) Kevin Bond <kevinbond@gmail.com>
  *
@@ -16,12 +16,16 @@ use Zenstruck\Foundry\Factory;
 /**
  * @author Kevin Bond <kevinbond@gmail.com>
  *
+ * @phpstan-import-type Parameters from Factory
  * @extends Factory<array>
  */
-class ArrayFactory extends Factory
+abstract class ArrayFactory extends Factory
 {
-    public function create(array|callable $attributes = []): array
+    /**
+     * @return Parameters
+     */
+    final public function create(array|callable $attributes = []): array
     {
-        return $this->normalizeAttributes();
+        return $this->normalizedAttributes($attributes);
     }
 }
