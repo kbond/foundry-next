@@ -320,6 +320,10 @@ abstract class PersistentObjectFactory extends ObjectFactory
     {
         $config = Configuration::instance();
 
+        if ($config->isPersistenceAvailable() && !$config->persistence()->isEnabled()) {
+            return false;
+        }
+
         return $this->persist ?? $config->isPersistenceAvailable() && $config->persistence()->isEnabled() && $config->persistence()->autoPersist(static::class());
     }
 

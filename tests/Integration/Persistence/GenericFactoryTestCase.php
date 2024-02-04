@@ -26,6 +26,7 @@ use function Zenstruck\Foundry\Persistence\disable_persisting;
 use function Zenstruck\Foundry\Persistence\enable_persisting;
 use function Zenstruck\Foundry\Persistence\flush_after;
 use function Zenstruck\Foundry\Persistence\persist;
+use function Zenstruck\Foundry\Persistence\persistent_factory;
 use function Zenstruck\Foundry\Persistence\refresh;
 use function Zenstruck\Foundry\Persistence\repository;
 use function Zenstruck\Foundry\Persistence\save;
@@ -456,6 +457,9 @@ abstract class GenericFactoryTestCase extends KernelTestCase
         disable_persisting();
 
         $this->factory()::createOne();
+        $this->factory()::new()->create();
+        persistent_factory($this->modelClass())->create(['prop1' => 'foo']);
+        persist($this->modelClass(), ['prop1' => 'foo']);
 
         enable_persisting();
 
