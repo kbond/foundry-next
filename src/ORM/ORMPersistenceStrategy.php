@@ -74,6 +74,11 @@ final class ORMPersistenceStrategy extends PersistenceStrategy
         return $properties;
     }
 
+    public function isEmbeddable(object $object): bool
+    {
+        return $this->objectManagerFor($object::class)->getClassMetadata($object::class)->isEmbeddedClass;
+    }
+
     public function resetDatabase(KernelInterface $kernel): void
     {
         $application = self::application($kernel);

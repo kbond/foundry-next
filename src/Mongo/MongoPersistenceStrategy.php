@@ -66,6 +66,11 @@ final class MongoPersistenceStrategy extends PersistenceStrategy
         return $properties;
     }
 
+    public function isEmbeddable(object $object): bool
+    {
+        return $this->objectManagerFor($object::class)->getClassMetadata($object::class)->isEmbeddedDocument;
+    }
+
     public function resetDatabase(KernelInterface $kernel): void
     {
         // noop

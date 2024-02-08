@@ -19,7 +19,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 #[ORM\Embeddable]
 #[MongoDB\EmbeddedDocument]
-final class Embeddable
+class Embeddable // not final on purpose
 {
     #[MongoDB\Field(type: 'string')]
     #[ORM\Column(type: 'string')]
