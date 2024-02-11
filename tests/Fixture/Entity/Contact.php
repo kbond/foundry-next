@@ -24,8 +24,13 @@ abstract class Contact extends Base
 {
     protected Category $category;
 
+    protected Category|null $secondaryCategory = null;
+
     /** @var Collection<int,Tag> */
     protected Collection $tags;
+
+    /** @var Collection<int,Tag> */
+    protected Collection $secondaryTags;
 
     protected Address $address;
 
@@ -38,6 +43,7 @@ abstract class Contact extends Base
         $this->category = $category;
         $this->address = $address;
         $this->tags = new ArrayCollection();
+        $this->secondaryTags = new ArrayCollection();
     }
 
     public function getName(): ?string
@@ -64,6 +70,16 @@ abstract class Contact extends Base
         return $this;
     }
 
+    public function getSecondaryCategory(): ?Category
+    {
+        return $this->secondaryCategory;
+    }
+
+    public function setSecondaryCategory(?Category $secondaryCategory): void
+    {
+        $this->secondaryCategory = $secondaryCategory;
+    }
+
     /**
      * @return Collection<int,Tag>
      */
@@ -86,6 +102,28 @@ abstract class Contact extends Base
         $this->tags->removeElement($tag);
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int,Tag>
+     */
+    public function getSecondaryTags(): Collection
+    {
+        return $this->secondaryTags;
+    }
+
+    public function addSecondaryTag(Tag $secondaryTag): void
+    {
+        if (!$this->secondaryTags->contains($secondaryTag)) {
+            $this->secondaryTags[] = $secondaryTag;
+        }
+    }
+
+    public function removeSecondaryTag(Tag $tag): void
+    {
+        if ($this->tags->contains($tag)) {
+            $this->tags->removeElement($tag);
+        }
     }
 
     public function getAddress(): Address

@@ -65,7 +65,7 @@ abstract class PersistenceStrategy
      * @param class-string $parent
      * @param class-string $child
      */
-    public function relationshipMetadata(string $parent, string $child): ?RelationshipMetadata
+    public function relationshipMetadata(string $parent, string $child, string $field): ?RelationshipMetadata
     {
         return null;
     }

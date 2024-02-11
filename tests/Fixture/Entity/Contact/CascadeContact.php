@@ -16,6 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Zenstruck\Foundry\Tests\Fixture\Entity\Address;
 use Zenstruck\Foundry\Tests\Fixture\Entity\Address\CascadeAddress;
 use Zenstruck\Foundry\Tests\Fixture\Entity\Category;
+use Zenstruck\Foundry\Tests\Fixture\Entity\Category\CascadeCategory;
 use Zenstruck\Foundry\Tests\Fixture\Entity\Contact;
 use Zenstruck\Foundry\Tests\Fixture\Entity\Tag\CascadeTag;
 
@@ -29,8 +30,15 @@ class CascadeContact extends Contact
     #[ORM\JoinColumn(nullable: false)]
     protected Category $category;
 
+    #[ORM\ManyToOne(targetEntity: CascadeCategory::class, cascade: ['persist', 'remove'], inversedBy: 'secondaryContacts')]
+    protected Category|null $secondaryCategory = null;
+
     #[ORM\ManyToMany(targetEntity: CascadeTag::class, inversedBy: 'contacts', cascade: ['persist', 'remove'])]
     protected Collection $tags;
+
+    #[ORM\ManyToMany(targetEntity: CascadeTag::class, inversedBy: 'secondaryContacts', cascade: ['persist', 'remove'])]
+    #[ORM\JoinTable(name: 'category_tag_cascade_secondary')]
+    protected Collection $secondaryTags;
 
     #[ORM\OneToOne(targetEntity: CascadeAddress::class, cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]

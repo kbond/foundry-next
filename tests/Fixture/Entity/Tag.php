@@ -25,6 +25,9 @@ abstract class Tag extends Base
     /** @var Collection<int,Contact> */
     protected Collection $contacts;
 
+    /** @var Collection<int,Contact> */
+    protected Collection $secondaryContacts;
+
     #[ORM\Column(length: 255)]
     private string $name;
 
@@ -32,6 +35,7 @@ abstract class Tag extends Base
     {
         $this->name = $name;
         $this->contacts = new ArrayCollection();
+        $this->secondaryContacts = new ArrayCollection();
     }
 
     public function getName(): ?string
@@ -71,5 +75,29 @@ abstract class Tag extends Base
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int,Contact>
+     */
+    public function getSecondaryContacts(): Collection
+    {
+        return $this->secondaryContacts;
+    }
+
+    public function addSecondaryContact(Contact $secondaryContact): void
+    {
+        if (!$this->secondaryContacts->contains($secondaryContact)) {
+            $this->secondaryContacts[] = $secondaryContact;
+            $secondaryContact->addSecondaryTag($this);
+        }
+    }
+
+    public function removeSecondaryContact(Contact $secondaryContact): void
+    {
+        if ($this->secondaryContacts->contains($secondaryContact)) {
+            $this->secondaryContacts->removeElement($secondaryContact);
+            $secondaryContact->removeSecondaryTag($this);
+        }
     }
 }

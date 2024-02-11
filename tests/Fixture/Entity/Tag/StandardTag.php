@@ -24,4 +24,7 @@ class StandardTag extends Tag
 {
     #[ORM\ManyToMany(targetEntity: StandardContact::class, mappedBy: 'tags')]
     protected Collection $contacts;
+
+    #[ORM\ManyToMany(targetEntity: StandardContact::class, mappedBy: 'secondaryTags')]
+    protected Collection $secondaryContacts;
 }

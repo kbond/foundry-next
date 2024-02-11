@@ -200,6 +200,69 @@ class EntityFactoryRelationshipTest extends KernelTestCase
     }
 
     /**
+     * @test
+     */
+    public function one_to_many_with_two_relationships_same_entity(): void
+    {
+        $category = $this->categoryFactory()->create([
+            'contacts' => $this->contactFactory()->many(4),
+            'secondaryContacts' => $this->contactFactory()->many(4),
+        ]);
+
+        $this->assertCount(4, $category->getContacts());
+        $this->assertCount(4, $category->getSecondaryContacts());
+        $this->contactFactory()::assert()->count(8);
+        $this->categoryFactory()::assert()->count(1);
+    }
+
+    /**
+     * @test
+     */
+    public function inverse_many_to_many_with_two_relationships_same_entity(): void
+    {
+        $this->tagFactory()::assert()->count(0);
+
+        $tag = $this->tagFactory()->create([
+            'contacts' => $this->contactFactory()->many(3),
+            'secondaryContacts' => $this->contactFactory()->many(3),
+        ]);
+
+        $this->assertCount(3, $tag->getContacts());
+        $this->assertCount(3, $tag->getSecondaryContacts());
+        $this->tagFactory()::assert()->count(1);
+        $this->contactFactory()::assert()->count(6);
+    }
+
+    /**
+     * @test
+     */
+    public function can_use_adder_as_attributes(): void
+    {
+        $category = $this->categoryFactory()->create([
+            'addContact' => $this->contactFactory()->with(['name' => 'foo'])
+        ]);
+
+        self::assertCount(1, $category->getContacts());
+        self::assertSame('foo', $category->getContacts()[0]->getName());
+    }
+
+    /**
+     * @test
+     */
+    public function one_to_many_with_two_relationships_same_entity_and_adders(): void
+    {
+        $category = $this->categoryFactory()->create([
+            'addContact' => $this->contactFactory(),
+            'addSecondaryContact' => $this->contactFactory(),
+        ]);
+
+        $this->assertCount(1, $category->getContacts());
+        $this->assertCount(1, $category->getSecondaryContacts());
+        $this->contactFactory()::assert()->count(2);
+        $this->categoryFactory()::assert()->count(1);
+    }
+
+    /**
      * @return PersistentObjectFactory<Contact>
      */
     protected function contactFactory(): PersistentObjectFactory

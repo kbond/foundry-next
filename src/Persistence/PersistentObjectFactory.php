@@ -263,34 +263,34 @@ abstract class PersistentObjectFactory extends ObjectFactory
         return $clone;
     }
 
-    protected function normalizeParameter(mixed $value): mixed
+    protected function normalizeParameter(string $field, mixed $value): mixed
     {
         if (!Configuration::instance()->isPersistenceAvailable()) {
-            return unproxy(parent::normalizeParameter($value));
+            return unproxy(parent::normalizeParameter($field, $value));
         }
 
         if ($value instanceof self && isset($this->persist)) {
             $value->persist = $this->persist; // todo - breaks immutability
         }
 
-        if ($value instanceof self && Configuration::instance()->persistence()->relationshipMetadata(static::class(), $value::class())?->isCascadePersist) {
+        if ($value instanceof self && Configuration::instance()->persistence()->relationshipMetadata(static::class(), $value::class(), $field)?->isCascadePersist) {
             $value->persist = false;
         }
 
-        return unproxy(parent::normalizeParameter($value));
+        return unproxy(parent::normalizeParameter($field, $value));
     }
 
-    protected function normalizeCollection(FactoryCollection $collection): array
+    protected function normalizeCollection(string $field, FactoryCollection $collection): array
     {
         if (!$this->isPersisting() || !$collection->factory instanceof self) {
-            return parent::normalizeCollection($collection);
+            return parent::normalizeCollection($field, $collection);
         }
 
         $pm = Configuration::instance()->persistence();
 
-        if ($field = $pm->relationshipMetadata($collection->factory::class(), static::class())?->inverseField) {
-            $this->tempAfterPersist[] = static function(object $object) use ($collection, $field, $pm) {
-                $collection->create([$field => $object]);
+        if ($inverseField = $pm->relationshipMetadata($collection->factory::class(), static::class(), $field)?->inverseField) {
+            $this->tempAfterPersist[] = static function(object $object) use ($collection, $inverseField, $pm) {
+                $collection->create([$inverseField => $object]);
                 $pm->refresh($object);
             };
 
@@ -298,7 +298,7 @@ abstract class PersistentObjectFactory extends ObjectFactory
             return [];
         }
 
-        return parent::normalizeCollection($collection);
+        return parent::normalizeCollection($field, $collection);
     }
 
     /**

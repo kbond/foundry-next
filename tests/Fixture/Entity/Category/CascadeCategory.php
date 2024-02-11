@@ -24,4 +24,7 @@ class CascadeCategory extends Category
 {
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: CascadeContact::class, cascade: ['persist', 'remove'])]
     protected Collection $contacts;
+
+    #[ORM\OneToMany(mappedBy: 'secondaryCategory', targetEntity: CascadeContact::class, cascade: ['persist', 'remove'])]
+    protected Collection $secondaryContacts;
 }

@@ -14,6 +14,7 @@ namespace Zenstruck\Foundry\ORM;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Mapping\MappingException as ORMMappingException;
 use Doctrine\Persistence\Mapping\MappingException;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -28,6 +29,8 @@ use Zenstruck\Foundry\Persistence\RelationshipMetadata;
  * @internal
  *
  * @method EntityManagerInterface objectManagerFor(string $class)
+ *
+ * @phpstan-import-type AssociationMapping from \Doctrine\ORM\Mapping\ClassMetadata
  */
 final class ORMPersistenceStrategy extends PersistenceStrategy
 {
@@ -126,20 +129,48 @@ final class ORMPersistenceStrategy extends PersistenceStrategy
         $this->createSchema($application);
     }
 
-    public function relationshipMetadata(string $parent, string $child): ?RelationshipMetadata
+    public function relationshipMetadata(string $parent, string $child, string $field): ?RelationshipMetadata
     {
         $metadata = $this->objectManagerFor($parent)->getClassMetadata($parent);
 
-        foreach ($metadata->getAssociationMappings() as $name => $association) {
-            if ($association['targetEntity'] === $child) {
-                return new RelationshipMetadata(
-                    isCascadePersist: $association['isCascadePersist'],
-                    inverseField: $metadata->isSingleValuedAssociation($name) ? $name : null,
-                );
+        $association = $this->getAssociationMapping($parent, $field);
+
+        if (null === $association) {
+            $inversedAssociation = $this->getAssociationMapping($child, $field);
+
+            if (null === $inversedAssociation) {
+                return null;
             }
+
+            if ($inversedAssociation['targetEntity'] !== $parent) {
+                throw new \LogicException("Cannot find correct association named \"$field\" between classes [parent: \"$parent\", child: \"$child\"]");
+            }
+
+            if ($inversedAssociation['type'] !== ClassMetadataInfo::ONE_TO_MANY || !isset($inversedAssociation['mappedBy'])) {
+                return null;
+            }
+
+            $association = $metadata->getAssociationMapping($inversedAssociation['mappedBy']);
         }
 
-        return null;
+        return new RelationshipMetadata(
+            isCascadePersist: $association['isCascadePersist'],
+            inverseField: $metadata->isSingleValuedAssociation($association['fieldName']) ? $association['fieldName'] : null,
+        );
+    }
+
+    /**
+     * @param class-string $entityClass
+     * @return array[]|null
+     * @phpstan-return AssociationMapping|null
+     */
+    private function getAssociationMapping(string $entityClass, string $field): array|null // @phpstan-ignore-line
+    {
+        try {
+            return $this->objectManagerFor($entityClass)->getClassMetadata($entityClass)->getAssociationMapping($field);
+        } catch (MappingException|ORMMappingException) {
+            return null;
+        }
     }
 
     private function createSchema(Application $application): void
