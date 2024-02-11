@@ -27,8 +27,8 @@ use Zenstruck\Foundry\Tests\Fixture\Entity\Tag\CascadeTag;
 class CascadeContact extends Contact
 {
     #[ORM\ManyToOne(targetEntity: Category\CascadeCategory::class, cascade: ['persist', 'remove'], inversedBy: 'contacts')]
-    #[ORM\JoinColumn(nullable: false)]
-    protected Category $category;
+    #[ORM\JoinColumn(nullable: true)]
+    protected Category|null $category = null;
 
     #[ORM\ManyToOne(targetEntity: CascadeCategory::class, cascade: ['persist', 'remove'], inversedBy: 'secondaryContacts')]
     protected Category|null $secondaryCategory = null;

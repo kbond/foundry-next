@@ -27,8 +27,8 @@ use Zenstruck\Foundry\Tests\Fixture\Entity\Tag\StandardTag;
 class StandardContact extends Contact
 {
     #[ORM\ManyToOne(targetEntity: StandardCategory::class, inversedBy: 'contacts')]
-    #[ORM\JoinColumn(nullable: false)]
-    protected Category $category;
+    #[ORM\JoinColumn(nullable: true)]
+    protected Category|null $category = null;
 
     #[ORM\ManyToOne(targetEntity: StandardCategory::class, inversedBy: 'secondaryContacts')]
     protected Category|null $secondaryCategory = null;

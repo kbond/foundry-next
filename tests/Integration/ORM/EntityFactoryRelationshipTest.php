@@ -40,13 +40,15 @@ class EntityFactoryRelationshipTest extends KernelTestCase
      */
     public function many_to_one(): void
     {
-        $contact = $this->contactFactory()::createOne();
+        $contact = $this->contactFactory()::createOne([
+            'category' => $this->categoryFactory()
+        ]);
 
         $this->contactFactory()::repository()->assert()->count(1);
         $this->categoryFactory()::repository()->assert()->count(1);
 
         $this->assertNotNull($contact->id);
-        $this->assertNotNull($contact->getCategory()->id);
+        $this->assertNotNull($contact->getCategory()?->id);
     }
 
     /**
@@ -56,6 +58,7 @@ class EntityFactoryRelationshipTest extends KernelTestCase
     {
         $contact = $this->contactFactory()->withoutPersisting()->create([
             'tags' => $this->tagFactory()->many(3),
+            'category' => $this->categoryFactory()
         ]);
 
         $this->contactFactory()::repository()->assert()->empty();
@@ -64,7 +67,7 @@ class EntityFactoryRelationshipTest extends KernelTestCase
         $this->addressFactory()::repository()->assert()->empty();
 
         $this->assertNull($contact->id);
-        $this->assertNull($contact->getCategory()->id);
+        $this->assertNull($contact->getCategory()?->id);
         $this->assertNull($contact->getAddress()->id);
         $this->assertCount(3, $contact->getTags());
 
@@ -83,7 +86,7 @@ class EntityFactoryRelationshipTest extends KernelTestCase
         $this->assertCount(3, $category->getContacts());
 
         foreach ($category->getContacts() as $contact) {
-            $this->assertSame($category->getName(), $contact->getCategory()->getName());
+            $this->assertSame($category->getName(), $contact->getCategory()?->getName());
         }
     }
 
@@ -102,7 +105,7 @@ class EntityFactoryRelationshipTest extends KernelTestCase
         $this->assertCount(3, $category->getContacts());
 
         foreach ($category->getContacts() as $contact) {
-            $this->assertSame($category->id, $contact->getCategory()->id);
+            $this->assertSame($category->id, $contact->getCategory()?->id);
         }
     }
 
@@ -202,6 +205,25 @@ class EntityFactoryRelationshipTest extends KernelTestCase
     /**
      * @test
      */
+    public function inverse_one_to_many_relationship(): void
+    {
+        $this->categoryFactory()::assert()->count(0);
+        $this->contactFactory()::assert()->count(0);
+
+        $this->categoryFactory()->create([
+            'contacts' => [
+                $this->contactFactory(),
+                $this->contactFactory()->create(),
+            ],
+        ]);
+
+        $this->categoryFactory()::assert()->count(1);
+        $this->contactFactory()::assert()->count(2);
+    }
+
+    /**
+     * @test
+     */
     public function one_to_many_with_two_relationships_same_entity(): void
     {
         $category = $this->categoryFactory()->create([
@@ -243,7 +265,7 @@ class EntityFactoryRelationshipTest extends KernelTestCase
         ]);
 
         self::assertCount(1, $category->getContacts());
-        self::assertSame('foo', $category->getContacts()[0]->getName());
+        self::assertSame('foo', $category->getContacts()[0]?->getName());
     }
 
     /**

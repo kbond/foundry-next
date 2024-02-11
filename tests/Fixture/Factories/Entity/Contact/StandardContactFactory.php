@@ -32,7 +32,7 @@ final class StandardContactFactory extends PersistentObjectFactory
     {
         return [
             'name' => self::faker()->word(),
-            'category' => StandardCategoryFactory::new(),
+//            'category' => StandardCategoryFactory::new(),
             'address' => StandardAddressFactory::new(),
         ];
     }
