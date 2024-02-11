@@ -77,7 +77,7 @@ final class ProxyGenerator
         $proxyClass = \str_replace('\\', '', $object::class).'Proxy';
 
         /** @var class-string<LazyObjectInterface&Proxy<T>&T> $proxyClass */
-        if (\class_exists($proxyClass)) {
+        if (\class_exists($proxyClass, autoload: false)) {
             return $proxyClass;
         }
 
