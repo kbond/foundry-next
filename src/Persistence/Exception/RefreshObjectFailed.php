@@ -17,7 +17,7 @@ final class RefreshObjectFailed extends \RuntimeException
     public static function objectHasUnsavedChanges(string $objectClass): static
     {
         return new self(
-            "Cannot auto refresh \"$objectClass\" as there are unsaved changes. Be sure to call ->_save() or disable auto refreshing (see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#auto-refresh for details)."
+            "Cannot auto refresh \"{$objectClass}\" as there are unsaved changes. Be sure to call ->_save() or disable auto refreshing (see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#auto-refresh for details)."
         );
     }
 }

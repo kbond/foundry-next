@@ -62,6 +62,19 @@ abstract class EmbeddableFactoryTestCase extends KernelTestCase
     }
 
     /**
+     * @test
+     */
+    public function can_use_embeddable_as_factory_parameter(): void
+    {
+        $factory = $this->withEmbeddableFactory();
+        $factory->create(['embeddable' => $embeddable = new Embeddable('value1')]);
+
+        $object = $factory::find(['embeddable' => $embeddable]);
+
+        self::assertEquals($embeddable, $object->getEmbeddable());
+    }
+
+    /**
      * @return PersistentObjectFactory<WithEmbeddable>
      */
     abstract protected function withEmbeddableFactory(): PersistentObjectFactory;

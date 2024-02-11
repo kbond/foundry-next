@@ -228,6 +228,10 @@ final class PersistenceManager
             return $object;
         }
 
+        if ($strategy->isEmbeddable($object)) {
+            return $object;
+        }
+
         $id = $om->getClassMetadata($object::class)->getIdentifierValues($object);
 
         if (!$id || !$object = $om->find($object::class, $id)) {
