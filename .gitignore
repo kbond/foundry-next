@@ -10,3 +10,4 @@
 /tests/Fixture/Migrations/
 /tests/Fixture/Maker/
 /bin/tools/*/vendor/
+/bin/tools/php-cs-fixer/composer.lock
