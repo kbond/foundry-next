@@ -98,7 +98,11 @@ trait IsProxy
 
     public function _real(): object
     {
-        $this->_autoRefresh();
+        try {
+            // we don't want the auto-refresh mechanism to break "real" object retrieval
+            $this->_autoRefresh();
+        } catch (\Throwable) {
+        }
 
         return $this->initializeLazyObject();
     }

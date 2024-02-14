@@ -220,6 +220,19 @@ abstract class GenericProxyFactoryTestCase extends GenericFactoryTestCase
     }
 
     /**
+     * @test
+     */
+    public function can_get_real_object_even_if_modified(): void
+    {
+        $object = $this->factory()->create();
+        $object->setProp1('foo');
+
+        self::assertInstanceOf(GenericModel::class, $real = $object->_real());
+        self::assertSame('foo', $real->getProp1());
+
+    }
+
+    /**
      * @return PersistentProxyObjectFactory<GenericModel>
      */
     abstract protected function factory(): PersistentProxyObjectFactory; // @phpstan-ignore-line
