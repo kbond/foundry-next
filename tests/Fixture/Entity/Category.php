@@ -25,6 +25,9 @@ abstract class Category extends Base
     /** @var Collection<int,Contact> */
     protected Collection $contacts;
 
+    /** @var Collection<int,Contact> */
+    protected Collection $secondaryContacts;
+
     #[ORM\Column(length: 255)]
     private string $name;
 
@@ -32,6 +35,7 @@ abstract class Category extends Base
     {
         $this->name = $name;
         $this->contacts = new ArrayCollection();
+        $this->secondaryContacts = new ArrayCollection();
     }
 
     public function getName(): ?string
@@ -39,7 +43,7 @@ abstract class Category extends Base
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function setName(string $name): static
     {
         $this->name = $name;
 
@@ -67,6 +71,31 @@ abstract class Category extends Base
     public function removeContact(Contact $contact): static
     {
         $this->contacts->removeElement($contact);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int,Contact>
+     */
+    public function getSecondaryContacts(): Collection
+    {
+        return $this->secondaryContacts;
+    }
+
+    public function addSecondaryContact(Contact $secondaryContact): static
+    {
+        if (!$this->secondaryContacts->contains($secondaryContact)) {
+            $this->secondaryContacts->add($secondaryContact);
+            $secondaryContact->setSecondaryCategory($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSecondaryContact(Contact $secondaryContact): static
+    {
+        $this->secondaryContacts->removeElement($secondaryContact);
 
         return $this;
     }

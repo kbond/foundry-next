@@ -23,6 +23,8 @@ use Zenstruck\Foundry\Tests\Fixture\Entity\Tag;
 use Zenstruck\Foundry\Tests\Fixture\Factories\Entity\Address\StandardAddressFactory;
 use Zenstruck\Foundry\Tests\Fixture\Factories\Entity\Category\StandardCategoryFactory;
 use Zenstruck\Foundry\Tests\Fixture\Factories\Entity\Contact\StandardContactFactory;
+use Zenstruck\Foundry\Tests\Fixture\Factories\Entity\EdgeCases\MultipleMandatoryRelationshipToSameEntity;
+use Zenstruck\Foundry\Tests\Fixture\Factories\Entity\EdgeCases\RichDomainMandatoryRelationship;
 use Zenstruck\Foundry\Tests\Fixture\Factories\Entity\Tag\StandardTagFactory;
 use Zenstruck\Foundry\Tests\Integration\RequiresORM;
 
@@ -40,13 +42,15 @@ class EntityFactoryRelationshipTest extends KernelTestCase
      */
     public function many_to_one(): void
     {
-        $contact = $this->contactFactory()::createOne();
+        $contact = $this->contactFactory()::createOne([
+            'category' => $this->categoryFactory()
+        ]);
 
         $this->contactFactory()::repository()->assert()->count(1);
         $this->categoryFactory()::repository()->assert()->count(1);
 
         $this->assertNotNull($contact->id);
-        $this->assertNotNull($contact->getCategory()->id);
+        $this->assertNotNull($contact->getCategory()?->id);
     }
 
     /**
@@ -56,6 +60,7 @@ class EntityFactoryRelationshipTest extends KernelTestCase
     {
         $contact = $this->contactFactory()->withoutPersisting()->create([
             'tags' => $this->tagFactory()->many(3),
+            'category' => $this->categoryFactory()
         ]);
 
         $this->contactFactory()::repository()->assert()->empty();
@@ -64,7 +69,7 @@ class EntityFactoryRelationshipTest extends KernelTestCase
         $this->addressFactory()::repository()->assert()->empty();
 
         $this->assertNull($contact->id);
-        $this->assertNull($contact->getCategory()->id);
+        $this->assertNull($contact->getCategory()?->id);
         $this->assertNull($contact->getAddress()->id);
         $this->assertCount(3, $contact->getTags());
 
@@ -83,7 +88,7 @@ class EntityFactoryRelationshipTest extends KernelTestCase
         $this->assertCount(3, $category->getContacts());
 
         foreach ($category->getContacts() as $contact) {
-            $this->assertSame($category->getName(), $contact->getCategory()->getName());
+            $this->assertSame($category->getName(), $contact->getCategory()?->getName());
         }
     }
 
@@ -102,7 +107,7 @@ class EntityFactoryRelationshipTest extends KernelTestCase
         $this->assertCount(3, $category->getContacts());
 
         foreach ($category->getContacts() as $contact) {
-            $this->assertSame($category->id, $contact->getCategory()->id);
+            $this->assertSame($category->id, $contact->getCategory()?->id);
         }
     }
 
@@ -197,6 +202,124 @@ class EntityFactoryRelationshipTest extends KernelTestCase
         $contact = $this->contactFactory()->create(['address' => $address]);
 
         $this->assertSame('Some city', $contact->getAddress()->getCity());
+    }
+
+    /**
+     * @test
+     */
+    public function inverse_one_to_many_relationship(): void
+    {
+        $this->categoryFactory()::assert()->count(0);
+        $this->contactFactory()::assert()->count(0);
+
+        $this->categoryFactory()->create([
+            'contacts' => [
+                $this->contactFactory(),
+                $this->contactFactory()->create(),
+            ],
+        ]);
+
+        $this->categoryFactory()::assert()->count(1);
+        $this->contactFactory()::assert()->count(2);
+    }
+
+    /**
+     * @test
+     */
+    public function one_to_many_with_two_relationships_same_entity(): void
+    {
+        $category = $this->categoryFactory()->create([
+            'contacts' => $this->contactFactory()->many(4),
+            'secondaryContacts' => $this->contactFactory()->many(4),
+        ]);
+
+        $this->assertCount(4, $category->getContacts());
+        $this->assertCount(4, $category->getSecondaryContacts());
+        $this->contactFactory()::assert()->count(8);
+        $this->categoryFactory()::assert()->count(1);
+    }
+
+    /**
+     * @test
+     */
+    public function inverse_many_to_many_with_two_relationships_same_entity(): void
+    {
+        $this->tagFactory()::assert()->count(0);
+
+        $tag = $this->tagFactory()->create([
+            'contacts' => $this->contactFactory()->many(3),
+            'secondaryContacts' => $this->contactFactory()->many(3),
+        ]);
+
+        $this->assertCount(3, $tag->getContacts());
+        $this->assertCount(3, $tag->getSecondaryContacts());
+        $this->tagFactory()::assert()->count(1);
+        $this->contactFactory()::assert()->count(6);
+    }
+
+    /**
+     * @test
+     */
+    public function can_use_adder_as_attributes(): void
+    {
+        $category = $this->categoryFactory()->create([
+            'addContact' => $this->contactFactory()->with(['name' => 'foo'])
+        ]);
+
+        self::assertCount(1, $category->getContacts());
+        self::assertSame('foo', $category->getContacts()[0]?->getName());
+    }
+
+    /**
+     * @test
+     */
+    public function one_to_many_with_two_relationships_same_entity_and_adders(): void
+    {
+        $category = $this->categoryFactory()->create([
+            'addContact' => $this->contactFactory(),
+            'addSecondaryContact' => $this->contactFactory(),
+        ]);
+
+        $this->assertCount(1, $category->getContacts());
+        $this->assertCount(1, $category->getSecondaryContacts());
+        $this->contactFactory()::assert()->count(2);
+        $this->categoryFactory()::assert()->count(1);
+    }
+
+    /**
+     * @test
+     */
+    public function inversed_multiple_mandatory_relationship_to_same_entity(): void
+    {
+        $this->markTestIncomplete('fixme! 🙏');
+
+        // @phpstan-ignore-next-line
+        $inversedSideEntity = MultipleMandatoryRelationshipToSameEntity\InversedSideEntityFactory::createOne([
+            'mainRelations' => MultipleMandatoryRelationshipToSameEntity\OwningSideEntityFactory::new()->many(2),
+            'secondaryRelations' => MultipleMandatoryRelationshipToSameEntity\OwningSideEntityFactory::new()->many(2),
+        ]);
+
+        $this->assertCount(2, $inversedSideEntity->getMainRelations());
+        $this->assertCount(2, $inversedSideEntity->getSecondaryRelations());
+        MultipleMandatoryRelationshipToSameEntity\OwningSideEntityFactory::assert()->count(4);
+        MultipleMandatoryRelationshipToSameEntity\InversedSideEntityFactory::assert()->count(1);
+    }
+
+    /**
+     * @test
+     */
+    public function inversed_mandatory_relationship_in_rich_domain(): void
+    {
+        $this->markTestIncomplete('fixme! 🙏');
+
+        // @phpstan-ignore-next-line
+        $inversedSideEntity = RichDomainMandatoryRelationship\InversedSideEntityFactory::createOne([
+            'main' => RichDomainMandatoryRelationship\OwningSideEntityFactory::new()->many(2),
+        ]);
+
+        $this->assertCount(2, $inversedSideEntity->getRelations());
+        RichDomainMandatoryRelationship\OwningSideEntityFactory::assert()->count(2);
+        RichDomainMandatoryRelationship\InversedSideEntityFactory::assert()->count(1);
     }
 
     /**

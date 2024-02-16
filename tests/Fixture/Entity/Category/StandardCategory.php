@@ -24,4 +24,7 @@ class StandardCategory extends Category
 {
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: StandardContact::class)]
     protected Collection $contacts;
+
+    #[ORM\OneToMany(mappedBy: 'secondaryCategory', targetEntity: StandardContact::class)]
+    protected Collection $secondaryContacts;
 }

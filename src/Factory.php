@@ -183,16 +183,22 @@ abstract class Factory
      */
     protected function normalizeParameters(array $parameters): array
     {
-        return \array_map($this->normalizeParameter(...), $parameters);
+        return array_combine(
+            array_keys($parameters),
+            \array_map($this->normalizeParameter(...), array_keys($parameters), $parameters)
+        );
     }
 
     /**
      * @internal
      */
-    protected function normalizeParameter(mixed $value): mixed
+    protected function normalizeParameter(string $field, mixed $value): mixed
     {
         if (\is_array($value)) {
-            return \array_map($this->normalizeParameter(...), $value);
+            return array_combine(
+                array_keys($value),
+                \array_map($this->normalizeParameter(...), array_fill(0, count($value), $field), $value)
+            );
         }
 
         if ($value instanceof LazyValue) {
@@ -204,7 +210,7 @@ abstract class Factory
         }
 
         if ($value instanceof FactoryCollection) {
-            $value = $this->normalizeCollection($value);
+            $value = $this->normalizeCollection($field, $value);
         }
 
         return \is_object($value) ? $this->normalizeObject($value) : $value;
@@ -217,9 +223,9 @@ abstract class Factory
      *
      * @return self<mixed>[]
      */
-    protected function normalizeCollection(FactoryCollection $collection): array
+    protected function normalizeCollection(string $field, FactoryCollection $collection): array
     {
-        return \array_map(fn(Factory $f) => $this->normalizeParameter($f), $collection->all());
+        return \array_map(fn(Factory $f) => $this->normalizeParameter($field, $f), $collection->all());
     }
 
     /**

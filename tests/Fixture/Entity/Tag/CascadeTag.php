@@ -14,6 +14,7 @@ namespace Zenstruck\Foundry\Tests\Fixture\Entity\Tag;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Zenstruck\Foundry\Tests\Fixture\Entity\Contact\CascadeContact;
+use Zenstruck\Foundry\Tests\Fixture\Entity\Contact\StandardContact;
 use Zenstruck\Foundry\Tests\Fixture\Entity\Tag;
 
 /**
@@ -24,4 +25,7 @@ class CascadeTag extends Tag
 {
     #[ORM\ManyToMany(targetEntity: CascadeContact::class, mappedBy: 'tags', cascade: ['persist', 'remove'])]
     protected Collection $contacts;
+
+    #[ORM\ManyToMany(targetEntity: CascadeContact::class, mappedBy: 'secondaryTags', cascade: ['persist', 'remove'])]
+    protected Collection $secondaryContacts;
 }

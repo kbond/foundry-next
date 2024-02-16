@@ -22,22 +22,27 @@ use Zenstruck\Foundry\Tests\Fixture\Model\Base;
 #[ORM\MappedSuperclass]
 abstract class Contact extends Base
 {
-    protected Category $category;
+    protected Category|null $category = null;
+
+    protected Category|null $secondaryCategory = null;
 
     /** @var Collection<int,Tag> */
     protected Collection $tags;
+
+    /** @var Collection<int,Tag> */
+    protected Collection $secondaryTags;
 
     protected Address $address;
 
     #[ORM\Column(length: 255)]
     private string $name;
 
-    public function __construct(string $name, Category $category, Address $address)
+    public function __construct(string $name, Address $address)
     {
         $this->name = $name;
-        $this->category = $category;
         $this->address = $address;
         $this->tags = new ArrayCollection();
+        $this->secondaryTags = new ArrayCollection();
     }
 
     public function getName(): ?string
@@ -52,16 +57,26 @@ abstract class Contact extends Base
         return $this;
     }
 
-    public function getCategory(): Category
+    public function getCategory(): ?Category
     {
         return $this->category;
     }
 
-    public function setCategory(Category $category): static
+    public function setCategory(?Category $category): static
     {
         $this->category = $category;
 
         return $this;
+    }
+
+    public function getSecondaryCategory(): ?Category
+    {
+        return $this->secondaryCategory;
+    }
+
+    public function setSecondaryCategory(?Category $secondaryCategory): void
+    {
+        $this->secondaryCategory = $secondaryCategory;
     }
 
     /**
@@ -86,6 +101,28 @@ abstract class Contact extends Base
         $this->tags->removeElement($tag);
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int,Tag>
+     */
+    public function getSecondaryTags(): Collection
+    {
+        return $this->secondaryTags;
+    }
+
+    public function addSecondaryTag(Tag $secondaryTag): void
+    {
+        if (!$this->secondaryTags->contains($secondaryTag)) {
+            $this->secondaryTags[] = $secondaryTag;
+        }
+    }
+
+    public function removeSecondaryTag(Tag $tag): void
+    {
+        if ($this->tags->contains($tag)) {
+            $this->tags->removeElement($tag);
+        }
     }
 
     public function getAddress(): Address

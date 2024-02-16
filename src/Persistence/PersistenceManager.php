@@ -297,12 +297,12 @@ final class PersistenceManager
      * @param class-string $parent
      * @param class-string $child
      */
-    public function relationshipMetadata(string $parent, string $child): ?RelationshipMetadata
+    public function relationshipMetadata(string $parent, string $child, string $field): ?RelationshipMetadata
     {
         $parent = unproxy($parent);
         $child = unproxy($child);
 
-        return $this->strategyFor($parent)->relationshipMetadata($parent, $child);
+        return $this->strategyFor($parent)->relationshipMetadata($parent, $child, $field);
     }
 
     /**

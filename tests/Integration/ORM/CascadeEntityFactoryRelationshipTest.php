@@ -35,10 +35,11 @@ final class CascadeEntityFactoryRelationshipTest extends EntityFactoryRelationsh
             })
             ->create([
                 'tags' => $this->tagFactory()->many(3),
+                'category' => $this->categoryFactory()
             ])
         ;
 
-        $this->assertNotNull($contact->getCategory()->id);
+        $this->assertNotNull($contact->getCategory()?->id);
         $this->assertNotNull($contact->getAddress()->id);
         $this->assertCount(3, $contact->getTags());
 
