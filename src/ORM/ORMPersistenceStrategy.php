@@ -142,7 +142,7 @@ final class ORMPersistenceStrategy extends PersistenceStrategy
                 return null;
             }
 
-            if ($inversedAssociation['targetEntity'] !== $parent) {
+            if (!is_a($parent, $inversedAssociation['targetEntity'], allow_string: true)) { // is_a() handles inheritance as well
                 throw new \LogicException("Cannot find correct association named \"$field\" between classes [parent: \"$parent\", child: \"$child\"]");
             }
 

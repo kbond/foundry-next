@@ -24,6 +24,10 @@ use Zenstruck\Foundry\Tests\Fixture\Entity\Tag\StandardTag;
  * @author Kevin Bond <kevinbond@gmail.com>
  */
 #[ORM\Entity]
+#[ORM\Table(name: 'posts')]
+#[ORM\InheritanceType(value: 'SINGLE_TABLE')]
+#[ORM\DiscriminatorColumn(name: 'type')]
+#[ORM\DiscriminatorMap(['simple' => StandardContact::class, 'specific' => ChildContact::class])]
 class StandardContact extends Contact
 {
     #[ORM\ManyToOne(targetEntity: StandardCategory::class, inversedBy: 'contacts')]
