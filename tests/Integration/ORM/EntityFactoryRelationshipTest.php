@@ -23,6 +23,8 @@ use Zenstruck\Foundry\Tests\Fixture\Entity\Tag;
 use Zenstruck\Foundry\Tests\Fixture\Factories\Entity\Address\StandardAddressFactory;
 use Zenstruck\Foundry\Tests\Fixture\Factories\Entity\Category\StandardCategoryFactory;
 use Zenstruck\Foundry\Tests\Fixture\Factories\Entity\Contact\StandardContactFactory;
+use Zenstruck\Foundry\Tests\Fixture\Factories\Entity\EdgeCases\MultipleMandatoryRelationshipToSameEntity;
+use Zenstruck\Foundry\Tests\Fixture\Factories\Entity\EdgeCases\RichDomainMandatoryRelationship;
 use Zenstruck\Foundry\Tests\Fixture\Factories\Entity\Tag\StandardTagFactory;
 use Zenstruck\Foundry\Tests\Integration\RequiresORM;
 
@@ -282,6 +284,42 @@ class EntityFactoryRelationshipTest extends KernelTestCase
         $this->assertCount(1, $category->getSecondaryContacts());
         $this->contactFactory()::assert()->count(2);
         $this->categoryFactory()::assert()->count(1);
+    }
+
+    /**
+     * @test
+     */
+    public function inversed_multiple_mandatory_relationship_to_same_entity(): void
+    {
+        $this->markTestIncomplete('fixme! 🙏');
+
+        // @phpstan-ignore-next-line
+        $inversedSideEntity = MultipleMandatoryRelationshipToSameEntity\InversedSideEntityFactory::createOne([
+            'mainRelations' => MultipleMandatoryRelationshipToSameEntity\OwningSideEntityFactory::new()->many(2),
+            'secondaryRelations' => MultipleMandatoryRelationshipToSameEntity\OwningSideEntityFactory::new()->many(2),
+        ]);
+
+        $this->assertCount(2, $inversedSideEntity->getMainRelations());
+        $this->assertCount(2, $inversedSideEntity->getSecondaryRelations());
+        MultipleMandatoryRelationshipToSameEntity\OwningSideEntityFactory::assert()->count(4);
+        MultipleMandatoryRelationshipToSameEntity\InversedSideEntityFactory::assert()->count(1);
+    }
+
+    /**
+     * @test
+     */
+    public function inversed_mandatory_relationship_in_rich_domain(): void
+    {
+        $this->markTestIncomplete('fixme! 🙏');
+
+        // @phpstan-ignore-next-line
+        $inversedSideEntity = RichDomainMandatoryRelationship\InversedSideEntityFactory::createOne([
+            'main' => RichDomainMandatoryRelationship\OwningSideEntityFactory::new()->many(2),
+        ]);
+
+        $this->assertCount(2, $inversedSideEntity->getRelations());
+        RichDomainMandatoryRelationship\OwningSideEntityFactory::assert()->count(2);
+        RichDomainMandatoryRelationship\InversedSideEntityFactory::assert()->count(1);
     }
 
     /**

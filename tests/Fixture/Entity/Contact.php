@@ -37,10 +37,9 @@ abstract class Contact extends Base
     #[ORM\Column(length: 255)]
     private string $name;
 
-    public function __construct(string $name/*, Category $category*/, Address $address)
+    public function __construct(string $name, Address $address)
     {
         $this->name = $name;
-//        $this->category = $category;
         $this->address = $address;
         $this->tags = new ArrayCollection();
         $this->secondaryTags = new ArrayCollection();
